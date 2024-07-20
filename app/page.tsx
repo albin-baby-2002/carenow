@@ -22,7 +22,7 @@ export default function Home() {
           <div className="text-14-regular mt-20 flex justify-between">
             <p className="text-dark-600 xl:text-left">© 2024 CareNow</p>
             <Link href={"/?admin=true"} className="text-green-500">
-              Admin
+              ADMIN
             </Link>
           </div>
         </div>
