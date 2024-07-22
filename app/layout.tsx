@@ -24,15 +24,11 @@ export default function RootLayout({
     <html lang="en">
       <body
         className={cn(
-          "bg-dark-300 min-h-screen font-sans antialiased",
+          "min-h-screen bg-dark-300 font-sans antialiased",
           fontSans.variable,
         )}
       >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="dark"
-          
-        >
+        <ThemeProvider attribute="class" defaultTheme="dark">
           {children}
         </ThemeProvider>
       </body>
