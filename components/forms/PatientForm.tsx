@@ -6,6 +6,9 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import CustomFormField from "../CustomFormField";
+import SubmitButton from "../SubmitButton";
+import { useState } from "react";
+import { patientFormSchema } from "@/lib/validation";
 
 export enum FormFieldType {
   INPUT = "input",
@@ -17,27 +20,30 @@ export enum FormFieldType {
   SKELETON = "skeleton",
 }
 
-const formSchema = z.object({
-  username: z.string().min(2, {
-    message: "Username must be at least 2 characters.",
-  }),
-  email: z.string().email("enter a valid email"),
-});
-
 const PatientForm = () => {
-  
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const [isLoading, setIsLoading] = useState(false);
+  const form = useForm<z.infer<typeof patientFormSchema>>({
+    resolver: zodResolver(patientFormSchema),
     defaultValues: {
       username: "",
       email: "",
+      phone: "",
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
-  }
+  async function onSubmit({
+    username,
+    email,
+    phone,
+  }: z.infer<typeof patientFormSchema>) {
+    setIsLoading(true);
 
+    try {
+      const userData = { username, email, phone };
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   return (
     <Form {...form}>
@@ -62,8 +68,17 @@ const PatientForm = () => {
           iconAlt="email"
         />
 
-        <Button type="submit">Submit</Button>
+        <CustomFormField
+          fieldType={FormFieldType.PHONE_INPUT}
+          control={form.control}
+          name="phone"
+          label="Phone number"
+          placeholder="+91 9456239999"
+          iconSrc="/assets/icons/email.svg"
+          iconAlt="phone"
+        />
 
+        <SubmitButton Loading={isLoading}>Get started</SubmitButton>
       </form>
     </Form>
   );

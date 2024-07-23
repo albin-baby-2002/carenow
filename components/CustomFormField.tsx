@@ -12,6 +12,8 @@ import { Input } from "./ui/input";
 import { Control } from "react-hook-form";
 import { FormFieldType } from "./forms/PatientForm";
 import Image from "next/image";
+import "react-phone-number-input/style.css";
+import PhoneInput from "react-phone-number-input";
 
 interface TCustomFormFieldProps {
   control: Control<any>;
@@ -58,6 +60,23 @@ const RenderField = ({
           </FormControl>
         </div>
       );
+    case FormFieldType.PHONE_INPUT:
+      return (
+        <FormControl>
+          <PhoneInput
+            defaultCountry="IN"
+            placeholder={props.placeholder}
+            international
+            withCountryCallingCode
+            value={field.value}
+            onChange={field.onChange}
+            className="input-phone"
+          />
+        </FormControl>
+      );
+
+    default:
+      break;
   }
 };
 
