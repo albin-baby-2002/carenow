@@ -9,6 +9,8 @@ import CustomFormField from "../CustomFormField";
 import SubmitButton from "../SubmitButton";
 import { useState } from "react";
 import { patientFormSchema } from "@/lib/validation";
+import { createUser } from "@/lib/actions/patient.actions";
+import { useRouter } from "next/navigation";
 
 export enum FormFieldType {
   INPUT = "input",
@@ -22,24 +24,33 @@ export enum FormFieldType {
 
 const PatientForm = () => {
   const [isLoading, setIsLoading] = useState(false);
+
+  const router = useRouter();
+
   const form = useForm<z.infer<typeof patientFormSchema>>({
     resolver: zodResolver(patientFormSchema),
     defaultValues: {
-      username: "",
+      name: "",
       email: "",
       phone: "",
     },
   });
 
   async function onSubmit({
-    username,
+    name,
     email,
     phone,
   }: z.infer<typeof patientFormSchema>) {
     setIsLoading(true);
 
     try {
-      const userData = { username, email, phone };
+      const userData = { name, email, phone };
+
+      const user = await createUser(userData);
+      
+      console.log(user,'user create successfully')
+
+      if (user) router.push(`/patient/${user.$id}/register`);
     } catch (error) {
       console.log(error);
     }
@@ -51,7 +62,7 @@ const PatientForm = () => {
         <CustomFormField
           fieldType={FormFieldType.INPUT}
           control={form.control}
-          name="username"
+          name="name"
           label="Full name"
           placeholder="John doe"
           iconSrc="/assets/icons/user.svg"
