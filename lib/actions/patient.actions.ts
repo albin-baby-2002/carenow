@@ -4,7 +4,6 @@ import { parseStringify } from "../utils";
 
 export const createUser = async (user: CreateUserParams) => {
   try {
-    console.log(user, "form user");
     const newUser = await users.create(
       ID.unique(),
       user.email,
@@ -13,7 +12,6 @@ export const createUser = async (user: CreateUserParams) => {
       user.name,
     );
 
-    console.log({ newUser }, "user");
 
     return parseStringify(newUser);
   } catch (error: any) {
