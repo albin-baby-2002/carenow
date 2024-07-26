@@ -7,15 +7,16 @@ import { Form, FormControl } from "@/components/ui/form";
 import CustomFormField from "../CustomFormField";
 import SubmitButton from "../SubmitButton";
 import { useState } from "react";
-import { patientFormSchema } from "@/lib/validation";
+import { patientFormSchema, RegisterFormSchema } from "@/lib/validation";
 import { createUser } from "@/lib/actions/patient.actions";
 import { useRouter } from "next/navigation";
 import { FormFieldType } from "./PatientForm";
 import { RadioGroup } from "@radix-ui/react-radio-group";
-import { GenderOptions } from "@/constants";
-import { Divide } from "lucide-react";
+import { Doctors, GenderOptions } from "@/constants";
 import { RadioGroupItem } from "../ui/radio-group";
 import { Label } from "@radix-ui/react-label";
+import Image from "next/image";
+import { SelectItem } from "../ui/select";
 
 interface RegisterFormProps {
   user: User;
@@ -26,7 +27,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ user }) => {
 
   const router = useRouter();
 
-  const form = useForm<z.infer<typeof patientFormSchema>>({
+  const form = useForm<z.infer<typeof RegisterFormSchema>>({
     resolver: zodResolver(patientFormSchema),
     defaultValues: {
       name: "",
@@ -134,6 +135,109 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ user }) => {
                 </FormControl>
               );
             }}
+          />
+        </div>
+
+        <div className="flex w-full flex-col gap-6 xl:flex-row">
+          <CustomFormField
+            fieldType={FormFieldType.INPUT}
+            control={form.control}
+            name="address"
+            label="Address"
+            placeholder="14th main street New York"
+          />
+
+          <CustomFormField
+            fieldType={FormFieldType.INPUT}
+            control={form.control}
+            name="occupation"
+            label="Occupation"
+            placeholder="+91 9456239999"
+          />
+        </div>
+
+        <div className="flex w-full flex-col gap-6 xl:flex-row">
+          <CustomFormField
+            fieldType={FormFieldType.INPUT}
+            control={form.control}
+            name="emergencyContactName"
+            label="Emergency Contact Name"
+            placeholder="Guardian's Name"
+          />
+
+          <CustomFormField
+            fieldType={FormFieldType.PHONE_INPUT}
+            control={form.control}
+            name="phone"
+            label="Phone number"
+            placeholder="+91 9456239999"
+            iconSrc="/assets/icons/email.svg"
+            iconAlt="phone"
+          />
+        </div>
+
+        <section className="space-y-6">
+          <div className="mb-9 space-y-1">
+            <p className="sub-header">Medical Information</p>
+          </div>
+        </section>
+
+        <CustomFormField
+          fieldType={FormFieldType.SELECT}
+          control={form.control}
+          name="primaryPhysician"
+          label="Primary Physician"
+          placeholder="Select a physician"
+        >
+          {Doctors.map((doctor) => (
+            <SelectItem key={doctor.name} value={doctor.name}>
+              <div className="flex cursor-pointer items-center gap-2 py-2">
+                <Image
+                  src={doctor.image}
+                  width={32}
+                  height={32}
+                  alt={doctor.name}
+                  className="rounded-full border border-dark-500"
+                />
+                <p>{doctor.name}</p>
+              </div>
+            </SelectItem>
+          ))}
+        </CustomFormField>
+
+        <div className="flex w-full flex-col gap-6 xl:flex-row">
+          <CustomFormField
+            fieldType={FormFieldType.INPUT}
+            control={form.control}
+            name="insuranceProvider"
+            label="Insurance Provider"
+            placeholder="National Health Group"
+          />
+
+          <CustomFormField
+            fieldType={FormFieldType.INPUT}
+            control={form.control}
+            name="insurancePolicyNumber"
+            label="Insurance Policy Number"
+            placeholder="3DFD32SFGGD3"
+          />
+        </div>
+
+        <div className="flex w-full flex-col gap-6 xl:flex-row">
+          <CustomFormField
+            fieldType={FormFieldType.TEXTAREA}
+            control={form.control}
+            name="allergies"
+            label="Allergies (if any)"
+            placeholder="Peanuts, Honey, Lactose"
+          />
+
+          <CustomFormField
+            fieldType={FormFieldType.TEXTAREA}
+            control={form.control}
+            name="currentMedication"
+            label="Current Medication"
+            placeholder="Insulin, Ibuprofen"
           />
         </div>
 

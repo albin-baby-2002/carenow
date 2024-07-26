@@ -12,7 +12,7 @@ const Register = async ({ params: { userId } }: SearchParamProps) => {
     <div className="flex h-screen max-h-screen">
       {/* Todo OTP verification */}
       <section className="remove-scrollbar container my-auto">
-        <div className="sub-container max-w-[496px]">
+        <div className="sub-container max-w-[666px]">
           <Image
             src="/assets/icons/logo-full.svg"
             height={1000}
@@ -37,7 +37,7 @@ const Register = async ({ params: { userId } }: SearchParamProps) => {
         height={1000}
         width={1000}
         alt="register_hero_img"
-        className="side-img max-w-[390px]"
+        className="side-img max-w-[500px]"
       />
     </div>
   );
