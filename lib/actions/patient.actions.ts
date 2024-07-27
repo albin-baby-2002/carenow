@@ -1,5 +1,5 @@
-import { ID, Query } from "node-appwrite";
-import { users } from "../appwrite.config";
+import { ID, Query, Functions } from "node-appwrite";
+import { storage, users } from "../appwrite.config";
 import { parseStringify } from "../utils";
 
 export const createUser = async (user: CreateUserParams) => {
@@ -11,7 +11,6 @@ export const createUser = async (user: CreateUserParams) => {
       undefined,
       user.name,
     );
-
 
     return parseStringify(newUser);
   } catch (error: any) {
@@ -33,4 +32,21 @@ export const getUser = async (userId: string) => {
   } catch (error) {
     console.log(error);
   }
+};
+
+export const registerPatient = async ({
+  identificationDocument,
+  ...patient
+}: RegisterUserParams) => {
+  try {
+    let file;
+
+    if (identificationDocument) {
+      file = await storage.createFile(
+        process.env.NEXT_PUBLIC_BUCKET_ID!,
+        ID.unique(),
+        identificationDocument,
+      );
+    }
+  } catch (error) {}
 };

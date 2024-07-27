@@ -8,15 +8,21 @@ import CustomFormField from "../CustomFormField";
 import SubmitButton from "../SubmitButton";
 import { useState } from "react";
 import { patientFormSchema, RegisterFormSchema } from "@/lib/validation";
-import { createUser } from "@/lib/actions/patient.actions";
+import { createUser, registerPatient } from "@/lib/actions/patient.actions";
 import { useRouter } from "next/navigation";
 import { FormFieldType } from "./PatientForm";
 import { RadioGroup } from "@radix-ui/react-radio-group";
-import { Doctors, GenderOptions } from "@/constants";
+import {
+  Doctors,
+  GenderOptions,
+  IdentificationTypes,
+  registerFormDefaultValues,
+} from "@/constants";
 import { RadioGroupItem } from "../ui/radio-group";
 import { Label } from "@radix-ui/react-label";
 import Image from "next/image";
 import { SelectItem } from "../ui/select";
+import FileUploader from "../FileUploader";
 
 interface RegisterFormProps {
   user: User;
@@ -30,25 +36,28 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ user }) => {
   const form = useForm<z.infer<typeof RegisterFormSchema>>({
     resolver: zodResolver(patientFormSchema),
     defaultValues: {
-      name: "",
-      email: "",
-      phone: "",
+      ...registerFormDefaultValues,
     },
   });
 
-  async function onSubmit({
-    name,
-    email,
-    phone,
-  }: z.infer<typeof patientFormSchema>) {
+  async function onSubmit(values: z.infer<typeof RegisterFormSchema>) {
     setIsLoading(true);
+    
+    
 
     try {
-      const userData = { name, email, phone };
-
-      const user = await createUser(userData);
-
-      if (user) router.push(`/patient/${user.$id}/register`);
+      
+      const patientData = {
+        ...values,
+        userId:user.$id,
+        birthDate : new Date(values.birthDate),
+        identificationDocument:values.identificationDocument?[0] 
+      }
+      
+      const patient = await registerPatient(patientData);
+      
+      if(patient) router.push('/patients/${user.$id}/new-appointment')
+      
     } catch (error) {
       console.log(error);
     }
@@ -190,8 +199,12 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ user }) => {
           placeholder="Select a physician"
         >
           {Doctors.map((doctor) => (
-            <SelectItem key={doctor.name} value={doctor.name}>
-              <div className="flex cursor-pointer items-center gap-2 py-2">
+            <SelectItem
+              key={doctor.name}
+              value={doctor.name}
+              className="cursor-pointer hover:bg-slate-600"
+            >
+              <div className="flex items-center gap-2 py-2">
                 <Image
                   src={doctor.image}
                   width={32}
@@ -240,6 +253,95 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ user }) => {
             placeholder="Insulin, Ibuprofen"
           />
         </div>
+
+        <div className="flex w-full flex-col gap-6 xl:flex-row">
+          <CustomFormField
+            fieldType={FormFieldType.TEXTAREA}
+            control={form.control}
+            name="familyMedialHistory"
+            label="Family Medical History"
+            placeholder="Diabetes,High Blood Pressure"
+          />
+
+          <CustomFormField
+            fieldType={FormFieldType.TEXTAREA}
+            control={form.control}
+            name="pastMedicalHistory"
+            label="Past Medical History"
+            placeholder="Appendectomy,Tonsillectomy"
+          />
+        </div>
+
+        <section className="space-y-6">
+          <div className="mb-9 space-y-1">
+            <p className="sub-header">Identification and verification</p>
+          </div>
+        </section>
+
+        <CustomFormField
+          fieldType={FormFieldType.SELECT}
+          control={form.control}
+          name="identificationType"
+          label="Identification Type"
+          placeholder="Select an identification type"
+        >
+          {IdentificationTypes.map((type) => (
+            <SelectItem
+              key={type}
+              value={type}
+              className="cursor-pointer hover:bg-slate-600"
+            >
+              {type}
+            </SelectItem>
+          ))}
+        </CustomFormField>
+
+        <CustomFormField
+          fieldType={FormFieldType.INPUT}
+          control={form.control}
+          name="identificationNumber"
+          label="Identification Number"
+          placeholder="FD32SFGGD3"
+        />
+
+        <CustomFormField
+          fieldType={FormFieldType.SKELETON}
+          control={form.control}
+          name="identificationDocument"
+          label="Scanned copy of identification document"
+          renderSkeleton={(field) => {
+            return (
+              <FormControl>
+                <FileUploader files={field.value} onChange={field.onChange} />
+              </FormControl>
+            );
+          }}
+        />
+
+        <section className="space-y-6">
+          <div className="mb-9 space-y-1">
+            <p className="sub-header">Consent and privacy</p>
+          </div>
+        </section>
+
+        <CustomFormField
+          fieldType={FormFieldType.CHECKBOX}
+          control={form.control}
+          name="treatmentConsent"
+          label="Treatment Consent"
+        />
+        <CustomFormField
+          fieldType={FormFieldType.CHECKBOX}
+          control={form.control}
+          name="disclosureConsent"
+          label="I consent to disclosure of information"
+        />
+        <CustomFormField
+          fieldType={FormFieldType.CHECKBOX}
+          control={form.control}
+          name="privacyConsent"
+          label="I consent to privacy policy"
+        />
 
         <div className="flex w-full flex-col gap-6 xl:flex-row"></div>
 
