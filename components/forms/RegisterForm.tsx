@@ -34,38 +34,62 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ user }) => {
   const router = useRouter();
 
   const form = useForm<z.infer<typeof RegisterFormSchema>>({
-    resolver: zodResolver(patientFormSchema),
+    resolver: zodResolver(RegisterFormSchema),
     defaultValues: {
       ...registerFormDefaultValues,
     },
   });
 
   async function onSubmit(values: z.infer<typeof RegisterFormSchema>) {
-    setIsLoading(true);
-    
-    
+    console.log("submit");
+    // setIsLoading(true);
 
     try {
+         let formData;
+         if (
+           values.identificationDocument &&
+           values.identificationDocument?.length > 0
+         ) {
+           const blobFile = new Blob([values.identificationDocument[0]], {
+             type: values.identificationDocument[0].type,
+           });
+
+           formData = new FormData();
+           formData.append("blobFile", blobFile);
+           formData.append("fileName", values.identificationDocument[0].name);
+         }
+          
+      
       
       const patientData = {
         ...values,
-        userId:user.$id,
-        birthDate : new Date(values.birthDate),
-        identificationDocument:values.identificationDocument?[0] 
-      }
-      
+        userId: user.$id,
+        birthDate: JSON.stringify(values.birthDate),
+        identificationDocument: formData
+      };
+
+      console.log(patientData);
+
+      console.log(values.identificationDocument, "identification doc");
+
       const patient = await registerPatient(patientData);
       
-      if(patient) router.push('/patients/${user.$id}/new-appointment')
-      
+      console.log('success',patient)
+
+      setIsLoading(false);
+
+      if (patient) router.push("/patients/${user.$id}/new-appointment");
     } catch (error) {
+      setIsLoading(false);
       console.log(error);
     }
   }
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit(onSubmit)}
+        onSubmit={form.handleSubmit(onSubmit, (err) => {
+          console.log(err);
+        })}
         className="flex-1 space-y-12"
       >
         <section className="space-y-4">
@@ -82,7 +106,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ user }) => {
         <CustomFormField
           fieldType={FormFieldType.INPUT}
           control={form.control}
-          name="name"
+          name="username"
           label="Full name"
           placeholder="John doe"
           iconSrc="/assets/icons/user.svg"
@@ -161,7 +185,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ user }) => {
             control={form.control}
             name="occupation"
             label="Occupation"
-            placeholder="+91 9456239999"
+            placeholder="Software Architect"
           />
         </div>
 
@@ -177,8 +201,8 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ user }) => {
           <CustomFormField
             fieldType={FormFieldType.PHONE_INPUT}
             control={form.control}
-            name="phone"
-            label="Phone number"
+            name="emergencyContactNumber"
+            label="Emergency Contact Number"
             placeholder="+91 9456239999"
             iconSrc="/assets/icons/email.svg"
             iconAlt="phone"

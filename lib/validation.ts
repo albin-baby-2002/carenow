@@ -8,13 +8,13 @@ export const patientFormSchema = z.object({
     })
     .max(50, { message: "Username must be at most 50 characters" }),
   email: z.string().email("Enter a valid email address"),
-  phone: z.string().refine((phone) => /^\+\d{10,15}$/.test(phone),"Invalid phone number"),
+  phone: z
+    .string()
+    .refine((phone) => /^\+\d{10,15}$/.test(phone), "Invalid phone number"),
 });
 
-
-
 export const RegisterFormSchema = z.object({
-  name: z
+  username: z
     .string()
     .min(2, "Name must be at least 2 characters")
     .max(50, "Name must be at most 50 characters"),
@@ -23,7 +23,7 @@ export const RegisterFormSchema = z.object({
     .string()
     .refine((phone) => /^\+\d{10,15}$/.test(phone), "Invalid phone number"),
   birthDate: z.coerce.date(),
-  gender: z.enum(["Male", "Female", "Other"]),
+  gender: z.enum(["male", "female", "other"]),
   address: z
     .string()
     .min(5, "Address must be at least 5 characters")

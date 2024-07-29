@@ -1,4 +1,4 @@
-export const GenderOptions = ["Male", "Female", "Other"];
+export const GenderOptions = ["male", "female", "other"];
 
 export const registerFormDefaultValues = {
   firstName: "",
@@ -6,7 +6,7 @@ export const registerFormDefaultValues = {
   email: "",
   phone: "",
   birthDate: new Date(Date.now()),
-  gender: "Male" as Gender,
+  gender: "m" as Gender,
   address: "",
   occupation: "",
   emergencyContactName: "",
