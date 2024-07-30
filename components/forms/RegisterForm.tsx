@@ -43,29 +43,27 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ user }) => {
   async function onSubmit(values: z.infer<typeof RegisterFormSchema>) {
     console.log("submit");
     // setIsLoading(true);
-
+    setIsLoading(true);
     try {
-         let formData;
-         if (
-           values.identificationDocument &&
-           values.identificationDocument?.length > 0
-         ) {
-           const blobFile = new Blob([values.identificationDocument[0]], {
-             type: values.identificationDocument[0].type,
-           });
+      let formData;
+      if (
+        values.identificationDocument &&
+        values.identificationDocument?.length > 0
+      ) {
+        const blobFile = new Blob([values.identificationDocument[0]], {
+          type: values.identificationDocument[0].type,
+        });
 
-           formData = new FormData();
-           formData.append("blobFile", blobFile);
-           formData.append("fileName", values.identificationDocument[0].name);
-         }
-          
-      
-      
+        formData = new FormData();
+        formData.append("blobFile", blobFile);
+        formData.append("fileName", values.identificationDocument[0].name);
+      }
+
       const patientData = {
         ...values,
         userId: user.$id,
         birthDate: JSON.stringify(values.birthDate),
-        identificationDocument: formData
+        identificationDocument: formData,
       };
 
       console.log(patientData);
@@ -73,12 +71,12 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ user }) => {
       console.log(values.identificationDocument, "identification doc");
 
       const patient = await registerPatient(patientData);
-      
-      console.log('success',patient)
+
+      console.log("success", patient);
 
       setIsLoading(false);
 
-      if (patient) router.push("/patients/${user.$id}/new-appointment");
+      if (patient) router.push(`/patient/${patient.userId}/new-appointment`);
     } catch (error) {
       setIsLoading(false);
       console.log(error);
