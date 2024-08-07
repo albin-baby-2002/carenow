@@ -28,7 +28,7 @@ interface RegisterFormProps {
   user: User;
 }
 
-const RegisterForm: React.FC<RegisterFormProps> = ({ user }) => {
+const     RegisterForm: React.FC<RegisterFormProps> = ({ user }) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const router = useRouter();

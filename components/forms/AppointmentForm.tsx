@@ -7,7 +7,7 @@ import { Form } from "@/components/ui/form";
 import CustomFormField from "../CustomFormField";
 import SubmitButton from "../SubmitButton";
 import { useState } from "react";
-import { AppointmentFormSchema, getAppointmentSchema } from "@/lib/validation";
+import { getAppointmentSchema } from "@/lib/validation";
 import { createUser } from "@/lib/actions/patient.actions";
 import { useRouter } from "next/navigation";
 import { FormFieldType } from "./PatientForm";
@@ -79,7 +79,7 @@ const AppointmentForm: React.FC<TAppointmentFormProps> = ({
           form.reset();
 
           router.push(
-            `patients/${userId}/new-appointment/success/?appointmentId=${appointment.id}`,
+            `/patient/${userId}/new-appointment/success?appointmentId=${appointment.$id}`,
           );
         }
       }
