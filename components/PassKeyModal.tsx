@@ -1,0 +1,133 @@
+"use client";
+import React, { useEffect, useState } from "react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSeparator,
+  InputOTPSlot,
+} from "@/components/ui/input-otp";
+
+import Image from "next/image";
+import { usePathname, useRouter } from "next/navigation";
+import { decryptKey, encryptKey } from "@/lib/utils";
+
+const PassKeyModal = () => {
+  const router = useRouter();
+  const path = usePathname();
+  const [open, setOpen] = useState(true);
+  const [passkey, setPasskey] = useState("");
+  const [error, setError] = useState("");
+
+  const closeModal = () => {
+    setOpen(false);
+    router.push("/");
+  };
+
+  const validatePasskey = (
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+  ) => {
+    e.preventDefault();
+
+    if (passkey === process.env.NEXT_PUBLIC_ADMIN_PASSKEY) {
+      const EncryptedKey = encryptKey(passkey);
+
+      localStorage.setItem("accessKey", EncryptedKey as unknown as string);
+
+      setOpen(false);
+      
+      router.push('/admin')
+    } else {
+      setError("Invalid Passkey, Please Try Again");
+    }
+  };
+
+  const encryptedKey =
+    typeof window !== "undefined"
+      ? window.localStorage.getItem("accessKey")
+      : null;
+
+  useEffect(() => {
+    if (path) {
+        
+        const accessKey = encryptedKey && decryptKey(encryptedKey)
+      if (accessKey === process.env.NEXT_PUBLIC_ADMIN_PASSKEY) {
+        setOpen(false);
+        router.push("/admin");
+      } else {
+        setOpen(true);
+      }
+    }
+  }, [encryptedKey]);
+
+  return (
+    <AlertDialog open={open} onOpenChange={setOpen}>
+      <AlertDialogContent className="shad-alert-dialog">
+        <AlertDialogHeader>
+          <AlertDialogTitle className="flex items-start justify-between">
+            Admin Access Verification
+            <Image
+              src={"/assets/icons/close.svg"}
+              alt="close"
+              width={20}
+              height={20}
+              onClick={() => {
+                closeModal();
+              }}
+              className="cursor-pointer"
+            />
+          </AlertDialogTitle>
+          <AlertDialogDescription>
+            To access the admin page please enter the passkey
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+
+        <div>
+          <InputOTP
+            maxLength={6}
+            value={passkey}
+            onChange={(val) => setPasskey(val)}
+          >
+            <InputOTPGroup className="shad-otp">
+              <InputOTPSlot index={0} className="shad-otp-slot" />
+              <InputOTPSlot index={1} className="shad-otp-slot" />
+              <InputOTPSlot index={2} className="shad-otp-slot" />
+              <InputOTPSlot index={3} className="shad-otp-slot" />
+              <InputOTPSlot index={4} className="shad-otp-slot" />
+              <InputOTPSlot index={5} className="shad-otp-slot" />
+            </InputOTPGroup>
+          </InputOTP>
+
+          {error && (
+            <p className="shad-error text-14-regular mt-4 flex justify-center">
+              {error}
+            </p>
+          )}
+        </div>
+
+        <AlertDialogFooter>
+          <AlertDialogAction
+            className="shad-primary-btn w-full"
+            onClick={(e) => {
+              validatePasskey(e);
+            }}
+          >
+            Enter Admin Passkey
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+};
+
+export default PassKeyModal;
