@@ -14,18 +14,27 @@ import { FormFieldType } from "./PatientForm";
 import Image from "next/image";
 import { Doctors } from "@/constants";
 import { SelectItem } from "../ui/select";
-import { createAppointment } from "@/lib/actions/appointment.action";
+import {
+  createAppointment,
+  updateAppointment,
+} from "@/lib/actions/appointment.action";
+import { Appointment } from "@/types/appwrite.type";
+import { AppleIcon } from "lucide-react";
 
 interface TAppointmentFormProps {
   userId: string;
   patientId: string;
   type: "create" | "cancel" | "schedule";
+  appointment?: Appointment;
+  setOpen: (val: boolean) => void;
 }
 
 const AppointmentForm: React.FC<TAppointmentFormProps> = ({
   userId,
   patientId,
   type,
+  appointment,
+  setOpen,
 }) => {
   const [isLoading, setIsLoading] = useState(false);
 
@@ -36,11 +45,14 @@ const AppointmentForm: React.FC<TAppointmentFormProps> = ({
   const form = useForm<z.infer<typeof AppointmentFormSchema>>({
     resolver: zodResolver(AppointmentFormSchema),
     defaultValues: {
-      primaryPhysician: "",
-      schedule: new Date(),
-      note: "",
-      reason: "",
-      cancellationReason: "",
+      primaryPhysician: appointment ? appointment.primaryPhysician : "",
+      schedule: appointment ? new Date(appointment.schedule) : new Date(),
+      note: appointment ? appointment.note : "",
+      reason: appointment ? appointment.reason : "",
+      cancellationReason:
+        appointment && appointment.cancellationReason
+          ? appointment.cancellationReason
+          : "",
     },
   });
 
@@ -82,8 +94,29 @@ const AppointmentForm: React.FC<TAppointmentFormProps> = ({
             `/patient/${userId}/new-appointment/success?appointmentId=${appointment.$id}`,
           );
         }
+      } else {
+        const appointmentToUpdate = {
+          userId,
+          appointmentId: appointment?.$id!,
+          appointment: {
+            primaryPhysician: values?.primaryPhysician!,
+            schedule: new Date(values?.schedule),
+            status: status as Status,
+            cancellationReason: values?.cancellationReason,
+          },
+          type,
+        };
+
+        const updatedAppointment = await updateAppointment(appointmentToUpdate);
+
+        if (updatedAppointment) {
+          setIsLoading(false);
+          setOpen(false);
+          form.reset();
+        }
       }
     } catch (error) {
+      setIsLoading(false)
       console.log(error);
     }
   }
@@ -107,12 +140,14 @@ const AppointmentForm: React.FC<TAppointmentFormProps> = ({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <section className="mb-12 space-y-4">
-          <h1 className="header">New Appointment</h1>
-          <p className="text-dark-700">
-            Request a new appointment in 10 seconds.
-          </p>
-        </section>
+        {type === "create" && (
+          <section className="mb-12 space-y-4">
+            <h1 className="header">New Appointment</h1>
+            <p className="text-dark-700">
+              Request a new appointment in 10 seconds.
+            </p>
+          </section>
+        )}
         {type !== "cancel" && (
           <>
             <CustomFormField
